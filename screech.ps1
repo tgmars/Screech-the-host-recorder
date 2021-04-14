@@ -19,9 +19,26 @@ if( (Test-Path "./logs/vagrant.log") -eq $false ){
     Out-File -FilePath "./logs/vagrant.log"
 }
 
-Write-Output "$('[{0:HH:mm}]' -f (Get-Date)) Vagrant" | Out-File -FilePath "./logs/vagrant.log" -Append
+Write-Output "$('[{0:HH:mm}]' -f (Get-Date)) Vagrant up" | Out-File -FilePath "./logs/vagrant.log" -Append
 
+# Start the vagrant environment
 Set-Location .\vagrant
 vagrant up | Out-File -FilePath "../logs/vagrant.log" -Append
 Set-Location ..
 
+# Start procmon on the victim
+Write-Host "[+] Starting Procmon trace on victim."
+Write-Output "$('[{0:HH:mm}]' -f (Get-Date)) Vagrant powershell victim" | Out-File -FilePath "./logs/vagrant.log" -Append
+Set-Location .\vagrant
+vagrant powershell victim -c "Procmon /AcceptEula /BackingFile C:\vagrant\$('{0:HHmm-dd-MMM}.pml' -f (Get-Date)) /Quiet" | Out-File -FilePath "../logs/vagrant.log" -Append
+
+# Simulate attacker doing something
+Write-Host "[+] Sleeping for 10sec."
+Write-Output "$('[{0:HH:mm}]' -f (Get-Date)) Sleep" | Out-File -FilePath "../logs/vagrant.log" -Append
+Start-Sleep 10
+
+# Terminate procmon on the victim
+Write-Host "[+] Terminating Procmon"
+Write-Output "$('[{0:HH:mm}]' -f (Get-Date)) Vagrant powershell victim - terminate procmon" | Out-File -FilePath "../logs/vagrant.log" -Append
+vagrant powershell victim -c "Procmon /Terminate" | Out-File -FilePath "../logs/vagrant.log" -Append
+Set-Location ..
