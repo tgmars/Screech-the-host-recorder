@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     victim.vm.network "private_network", ip: "10.10.10.6", gateway: "10.10.10.1"
 
     victim.vm.provision "shell", path: "scripts/get-victimtools.ps1", privileged: false
-    victim.vm.provision "shell", path: "scripts/disable-firewall.ps1", privileged: false
+    victim.vm.provision "shell", path: "scripts/disable-victimsecurity.ps1", privileged: false
 
   end
 
